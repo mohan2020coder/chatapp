@@ -99,7 +99,7 @@ This project is a **Real-Time Chat Application** that allows users to send and r
       username VARCHAR(255) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )
+  );
   ```
 - **Messages Table**:
 ```sql
