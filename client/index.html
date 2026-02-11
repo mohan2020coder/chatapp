@@ -1,33 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Production Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
     <style>
-        body { font-family: Arial; display: flex; }
-        #chat { flex: 3; padding: 10px; }
-        #users { flex: 1; border-left: 1px solid #ccc; padding: 10px; }
-        #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 5px; }
-        #input { width: 80%; padding: 8px; }
-        #send { padding: 8px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f5;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 250px;
+            background-color: #2c2f3f;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        #sidebar h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #user-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .user:hover {
+            background-color: #4f576b;
+        }
+
+        .user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .new-message {
+            background-color: #fc3e50;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* Active User Styles */
+        .active-user {
+            background-color: #4f576b;
+        }
+
+        /* Chat Section Styles */
+        #chat {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-left: 1px solid #ddd;
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 20px;
+        }
+
+        .message {
+            max-width: 60%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .sent {
+            background-color: #e1f5fe;
+            align-self: flex-start;
+        }
+
+        .received {
+            background-color: #e3f2fd;
+            align-self: flex-end;
+        }
+
+        #input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        #input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        #send-button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #388e3c;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            #chat, #sidebar {
+                width: 100%;
+                margin: 10px;
+            }
+
+            #input {
+                width: 70%;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div id="chat">
-    <h3>Chat</h3>
-    <div id="messages"></div>
-    <input type="text" id="input" placeholder="Type message..." />
-    <button id="send">Send</button>
+<!-- Sidebar -->
+<div id="sidebar">
+    <h2>Chatgo</h2>
+    <div id="user-list">
+        <!-- User list dynamically populated -->
+    </div>
 </div>
 
-<div id="users">
-    <h3>Connected Users</h3>
-    <ul id="userList"></ul>
+<!-- Chat Section -->
+<div id="chat">
+    <div id="messages">
+        <!-- Chat messages will be dynamically added here -->
+    </div>
+    <div id="input-container">
+        <input type="text" id="input" placeholder="Type something...">
+        <button id="send-button">Send</button>
+    </div>
 </div>
 
 <script>
+// Chat functionality
 const username = prompt("Enter username:");
 let socket;
+let currentUser = null;
 
 fetch(`http://localhost:8080/auth?username=${username}`)
 .then(res => res.json())
@@ -42,46 +206,61 @@ fetch(`http://localhost:8080/auth?username=${username}`)
         const msg = JSON.parse(event.data);
         const messages = document.getElementById("messages");
 
+        // Dynamically add the new message
         const div = document.createElement("div");
-
-        if (msg.type === "system") {
-            div.innerHTML = "<i>" + msg.content + "</i>";
-        } else {
-            div.innerHTML = "<b>" + msg.sender + ":</b> " + msg.content;
-        }
-
+        div.classList.add('message', msg.sender === username ? 'sent' : 'received');
+        div.innerHTML = `<strong>${msg.sender}:</strong><p>${msg.content}</p><div class="time">${new Date().toLocaleTimeString()}</div>`;
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
-
-        loadUsers();
     };
 });
 
-document.getElementById("send").onclick = sendMessage;
+// Send a message
+document.getElementById("send-button").onclick = sendMessage;
 
 function sendMessage() {
     const input = document.getElementById("input");
     const content = input.value;
 
-    if (content && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ content }));
+    if (content && socket.readyState === WebSocket.OPEN && currentUser) {
+        socket.send(JSON.stringify({ content, recipient: currentUser }));
         input.value = "";
     }
 }
 
+// Load the user list and handle user selection
 function loadUsers() {
     fetch("http://localhost:8080/users")
     .then(res => res.json())
     .then(users => {
-        const list = document.getElementById("userList");
-        list.innerHTML = "";
+        const list = document.getElementById("user-list");
+        list.innerHTML = ""; // Clear the existing user list
+
         users.forEach(u => {
-            const li = document.createElement("li");
-            li.textContent = u;
-            list.appendChild(li);
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("user");
+            userDiv.innerHTML = `<img src="https://www.w3schools.com/w3images/avatar2.png" alt="User"><div><div class="user-name">${u}</div></div>`;
+            
+            userDiv.onclick = () => {
+                currentUser = u;
+                document.querySelectorAll(".user").forEach(item => item.classList.remove("active-user"));
+                userDiv.classList.add("active-user");
+                loadChatHistory(u); // Load previous messages for selected user
+            };
+
+            list.appendChild(userDiv);
         });
     });
 }
+
+// Function to load previous chat history (if applicable)
+function loadChatHistory(user) {
+    // Here you could add functionality to load previous chat history from the server
+    console.log(`Loading chat history for ${user}`);
+}
+
+// Initial user list load
+loadUsers();
 </script>
 
 </body>
