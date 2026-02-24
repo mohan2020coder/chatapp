@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Injection Testing Lab</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: #f9fafb;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1100px;
+            margin: 60px auto;
+            gap: 40px;
+            padding: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        p {
+            color: #cbd5e1;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            min-height: 60px;
+        }
+
+        .examples {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #93c5fd;
+        }
+
+        .warning {
+            background: #7f1d1d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #fecaca;
+        }
+
+        .examples {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .example-section {
+            margin-bottom: 25px;
+        }
+
+        .example-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            color: #60a5fa;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 6px;
+        }
+
+        code {
+            display: block;
+            background: #1e293b;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #93c5fd;
+            word-break: break-all;
+            transition: 0.2s;
+        }
+
+        code:hover {
+            background: #334155;
+            cursor: pointer;
+        }
+
+        .url-example {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        .url-example span {
+            display: block;
+            margin-top: 6px;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            color: #93c5fd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Left Side: Lab -->
+        <div class="card">
+            <h1>Command Injection Lab</h1>
+
+            <div class="warning">
+                ⚠️ This page is intentionally vulnerable. Use only in a controlled testing environment.
+            </div>
+
+            <p>Enter input to test command injection behavior:</p>
+
+            <form method="GET">
+                <input type="text" name="input" placeholder="Try injecting a command here...">
+                <button type="submit">Test Command</button>
+            </form>
+
+            <div class="output">
+                <strong>Output:</strong><br><br>
+                <script>
+                    // Intentionally vulnerable for lab purposes
+                    const params = new URLSearchParams(window.location.search);
+                    const userInput = params.get("input");
+
+                    if (userInput) {
+                        // Mocking the output of a command
+                        let mockResponse = "";
+                        if (userInput === "ls") {
+                            mockResponse = "<pre>bin  etc  home  lib  usr</pre>";
+                        } else if (userInput === "cat /etc/passwd") {
+                            mockResponse = "<pre>root:x:0:0:root:/root:/bin/bash</pre>";
+                        } else if (userInput === "whoami") {
+                            mockResponse = "<pre>user123</pre>";
+                        } else if (userInput === ";ls") {
+                            mockResponse = "<pre>bin  etc  home  lib  usr</pre>";
+                        } else {
+                            mockResponse = "<pre>Invalid Command or No Output</pre>";
+                        }
+
+                        document.querySelector('.output').innerHTML += mockResponse;
+                    }
+                </script>
+            </div>
+        </div>
+
+        <!-- Right Side: Examples -->
+        <div class="card">
+            <h1>Example Payloads</h1>
+            <p>Select and append these to the URL:</p>
+
+            <div class="examples">
+
+                <div class="example-section">
+                    <h3>Basic Command Injection</h3>
+                    <code>?input=ls</code>
+                    <code>?input=cat%20/etc/passwd</code>
+                    <code>?input=whoami</code>
+                </div>
+
+                <div class="example-section">
+                    <h3>Injecting Shell Commands</h3>
+                    <code>?input=;ls</code>
+                    <code>?input=;cat%20/etc/hosts</code>
+                    <code>?input=|id</code>
+                </div>
+
+                <div class="example-section">
+                    <h3>File Operations</h3>
+                    <code>?input=;echo%20hello%20world%20>%20test.txt</code>
+                    <code>?input=;rm%20-rf%20/test</code>
+                </div>
+
+                <div class="example-section">
+                    <h3>Network Commands</h3>
+                    <code>?input=;ping%20-c%201%20127.0.0.1</code>
+                    <code>?input=;nc%20-l%201234</code>
+                </div>
+
+            </div>
+
+            <div class="url-example">
+                Example full URL:<br>
+                <span>index.html?input=;ls</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
