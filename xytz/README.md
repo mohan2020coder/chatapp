@@ -1,0 +1,243 @@
+# xytz - YouTube from your terminal
+
+A beautiful TUI app for searching and downloading YouTube videos, built with Go and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+
+<p align="start">
+  <a href="https://github.com/xdagiz/xytz/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/xdagiz/xytz"/>
+  </a>
+  <a href="https://goreportcard.com/report/github.com/xdagiz/xytz">
+    <img src="https://goreportcard.com/badge/github.com/xdagiz/xytz" />
+  </a>
+  <a href="https://github.com/xdagiz/xytz/issues">
+    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="CodeFactor" />
+  </a>
+  <a href="https://github.com/xdagiz/xytz/tags" rel="nofollow">
+    <img alt="GitHub tag (latest SemVer pre-release)" src="https://img.shields.io/github/v/tag/xdagiz/xytz?include_prereleases&label=version"/>
+  </a>
+</p>
+
+https://github.com/user-attachments/assets/4e3f98c7-554f-4b9e-adac-52511ae69f32
+
+## ✨ Features
+
+- **Interactive Search** - Search YouTube videos directly from your terminal
+- **Channel Browsing** - View all videos from a specific channel with `/channel @username`
+- **Playlist Support** - Browse and download videos from playlists with `/playlist <id>`
+- **Format Selection** - Choose from available video/audio formats with quality indicators
+- **Download Management** - Real-time progress tracking with speed and ETA
+- **Resume Downloads** - Resume unfinished downloads with `/resume`
+- **Search History** - Persistent search history for quick access
+- **Keyboard Navigation** - Vim-style keybindings and intuitive shortcuts
+- **Cross-Platform** - Works on Linux, macOS, and Windows
+
+**Requirements:**
+
+- **yt-dlp**: Core video downloader
+  - Installation: https://github.com/yt-dlp/yt-dlp#installation
+- **ffmpeg** - Required for full features
+  - Installation: https://ffmpeg.org/download.html
+
+## Installation
+
+### 1. Using Install Script (Linux/MacOS)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xdagiz/xytz/main/install.sh | bash
+```
+
+### 2. Using Go Install
+
+If you have Go installed, you can install directly:
+
+```bash
+go install github.com/xdagiz/xytz@latest
+```
+
+### 3. From AUR (Arch Linux)
+
+If you're using an Arch-based distribution, you can install xytz from the AUR:
+
+```bash
+yay -S xytz-bin
+```
+
+### 4. Build from Source
+
+**Requirements:**
+
+- **Go 1.25+** - For building from source
+
+```bash
+# Clone the repository
+git clone https://github.com/xdagiz/xytz.git
+cd xytz
+
+# Build
+go build -o xytz .
+
+# Move to your PATH (optional)
+sudo mv xytz /usr/local/bin/
+```
+
+## Getting Started
+
+Launch xytz by running:
+
+```bash
+xytz
+```
+
+### Basic Workflow
+
+1. **Search** - Type your query and press `Enter` to search
+2. **Select** - Use `↑/↓` or `j/k` to navigate results, `Enter` to select
+3. **Choose Format** - Select your preferred video/audio format
+4. **Download** - The download starts automatically
+
+## Configuration
+
+The config file location varies by operating system:
+
+| OS      | Config Location                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------- |
+| Linux   | `~/.config/xytz/config.yaml` (or `$XDG_CONFIG_HOME/xytz/config.yaml`)                                                |
+| macOS   | `~/.config/xytz/config.yaml` if `XDG_CONFIG_HOME` is set, otherwise `~/Library/Application Support/xytz/config.yaml` |
+| Windows | `%APPDATA%/xytz/config.yaml`                                                                                         |
+
+On first run, xytz will create the config file with default values if it doesn't exist.
+
+## CLI Arguments
+
+xytz supports command-line arguments for quick access to search, channels, and playlists.
+
+### Quick Reference
+
+| Flag                     | Short | Description                                          |
+| ------------------------ | ----- | ---------------------------------------------------- |
+| `--number`               | `-n`  | Number of search results                             |
+| `--sort-by`              | `-s`  | Sort results: `relevance`, `date`, `views`, `rating` |
+| `--query`                | `-q`  | Direct search query                                  |
+| `--channel`              | `-c`  | Browse channel (use `@username` format)              |
+| `--playlist`             | `-p`  | Browse playlist (use playlist ID)                    |
+| `--help`                 | `-h`  | Show help message                                    |
+| `--cookies-from-browser` |       | The browser name to load cookies from                |
+| `--cookies`              |       | Path to a `cookies.txt` file to read cookies from    |
+
+> **Note:** Default values for these flags are grabbed from the configuration file.
+
+### Usage Examples
+
+```bash
+# Direct video search
+xytz -q "golang tutorial"
+
+# Browse a specific channel
+xytz -c @username
+
+# Browse a playlist
+xytz -p PLplaylistId
+
+# Custom search results and sorting
+xytz -n 50 -s date
+
+# Combined: Search with custom options
+xytz -q "rust programming" -n 10 -s views
+```
+
+## Configuration
+
+xytz uses a YAML configuration file located at `~/.config/xytz/config.yaml`.
+
+### Default Configuration
+
+```yaml
+search_limit: 25 # Number of search results
+default_download_path: ~/Videos # Download destination
+default_quality: best # Default format selection (480p, 720p, 1080p, 4k...)
+sort_by_default: relevance # Default sort: relevance, date, views, rating
+video_format: mp4 # The format which videos are downloaded
+audio_format: mp3 # The format which audio files are downloaded
+embed_subtitles: false # Embed subtitles in downloads
+embed_metadata: true # Embed metadata in downloads
+embed_chapters: true # Embed chapters in downloads
+ffmpeg_path: "" # Custom ffmpeg path (optional)
+yt_dlp_path: "" # Custom yt-dlp path (optional)
+cookies_browser: "" # Browser for cookies: chrome, firefox, etc (optional)
+cookies_file: "" # Path to cookies.txt file for authentication (optional)
+```
+
+The configuration file is created automatically on first run with sensible defaults.
+
+## Contributing
+
+Contributions are welcome. Please ensure your fork is synced with the upstream repository before submitting pull requests.
+
+### Commit Style
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+[optional footer]
+```
+
+**Types:**
+
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation
+- `refactor` - Code refactoring
+- `chore` - Maintenance tasks
+
+### Pull Request Guidelines
+
+- Keep changes focused and minimal
+- Ensure all tests pass before submitting
+- Update documentation if needed
+- Follow the existing code style
+
+## Troubleshooting
+
+### yt-dlp not found
+
+Ensure yt-dlp is installed and available in your PATH:
+
+```bash
+yt-dlp --version
+```
+
+If installed in a non-standard location, set `yt_dlp_path` in your config.
+
+### ffmpeg not found
+
+ffmpeg is required for most of features to work. Install it and ensure it's in your PATH, or set `ffmpeg_path` in your config.
+
+### Downloads failing
+
+- Check your internet connection
+- Verify the video is available in your region
+- Ensure you have sufficient disk space
+- Check the download path is writable
+- Make sure you have `yt-dlp` and `ffmpeg` installed
+
+## Acknowledgments
+
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea) - TUI framework
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - YouTube download engine
+- [Lipgloss](https://github.com/charmbracelet/lipgloss) - Styling library
+- [Bubbles](https://github.com/charmbracelet/bubbles) - TUI components
+
+## Star History
+
+<a href="https://www.star-history.com/#xdagiz/xytz&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=xdagiz/xytz&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=xdagiz/xytz&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=xdagiz/xytz&type=date&legend=top-left" />
+ </picture>
+</a>
+
+By [xdagiz](https://github.com/xdagiz)
